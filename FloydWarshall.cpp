@@ -24,10 +24,10 @@ List<string*> ConvertInfo(List<string>& info)
 
 		for (auto symbol : info.at(i))
 		{
-			if (symbol != ';') //записываем посимвольно слова в элемент массива пока не соберем все слово
+			if (symbol != ';') 
 				line[word_number] += symbol;
 			else
-				word_number++; //если встречаем ; переходим к следущему элементу массива - новому слову
+				word_number++; 
 		}
 		
 		if (INPUT_WORDS_AMOUNT < word_number)
@@ -62,27 +62,27 @@ List<string> GetCities(List<std::string*>& info)
 	return Cities;
 }
 
-Graph::Graph(List<string*>& info, List<string> &cities)
+FloydWarshall::FloydWarshall(List<string*>& info, List<string> &cities)
 {
 	this->size = cities.get_size();
 	this->Cities = cities;
-	this->matrix = new int* [size]; //размер матрицы равен количесву городов
+	this->matrix = new int* [size]; //size of the matrix = amount of unique cities
 	for (size_t i = 0; i < size; i++)  //create a two-dimensional matrix
 		matrix[i] = new int [size];
 	
 	make_matrix( info,  Cities, matrix);
 }
 
-Graph::~Graph()
+FloydWarshall::~FloydWarshall()
 {
 	for (size_t count = 0; count < Cities.get_size(); count++)
 		delete[] matrix[count];
 }
-void Graph::make_matrix(List<string*>& info, List<string> Cities, int** &matrix)
+void FloydWarshall::make_matrix(List<string*>& info, List<string> Cities, int** &matrix)
 {
 	int city1, city2;
 	
-	//заполнение массива
+	//filling an array
 	for (size_t i = 0; i < size; i++)
 		for (size_t j = 0; j < size; j++)
 		{
@@ -90,16 +90,15 @@ void Graph::make_matrix(List<string*>& info, List<string> Cities, int** &matrix)
 				matrix[i][j] = 0;
 			else matrix[i][j] = INF;
 		}
+
 	for (size_t i =0; i < info.get_size(); i++)
 	{
 		auto line = info.at(i);
 		city1 = Cities.find(line[DEPARTURE_CITY]);
 		city2 = Cities.find(line[ARRIVAL_CITY]);
 		if (city1 == -1 || city2 == -1)
-		{
-			std::cout << "\nSmth went wrong..."; //заменить на исключение
-			return;
-		}
+			throw std::logic_error("This cities don't exsist!");
+
 		matrix[city1][city2] = stoi(line[DEPARTURE_PRICE]);
 		matrix[city2][city1] = stoi(line[ARRIVAL_PRICE]);
 		
@@ -107,7 +106,7 @@ void Graph::make_matrix(List<string*>& info, List<string> Cities, int** &matrix)
 	
 }
 
-size_t Graph::max_num_len()
+size_t FloydWarshall::max_num_len()
 {
 	size_t max_len = 0u;
 	size_t len;
@@ -124,7 +123,7 @@ size_t Graph::max_num_len()
 	}
 	return max_len;
 }
-void Graph::print_matrix()
+void FloydWarshall::print_matrix()
 {
 	if (size == 0)
 		throw std::logic_error("The matrix is empty!");
@@ -147,7 +146,7 @@ void Graph::print_matrix()
 	}
 }
 
-string Graph::minimal_way(const string &first_city, const string &second_city)
+string FloydWarshall::minimal_way(const string &first_city, const string &second_city)
 {
 	if (first_city == second_city)
 		return "Departure and arrival cities must be different!";
